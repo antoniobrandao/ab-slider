@@ -1,8 +1,10 @@
 # ab-slider
 
-A simple slider using TranslateX transforms to get GPU-powered smooth animations. 
+A simple slider using TranslateX transforms to get GPU-powered smooth animations, made with vanilla JavaScript. 
 
 Touch-enabled, including swipe left and right gestures. Easy to set up and to add prev/next buttons.
+
+Only one dependency (hammer.js - for touch input and gestures)
 
 ## Install
 
