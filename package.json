@@ -1,7 +1,7 @@
 {
   "name": "ab-slider",
-  "version": "0.1.3",
-  "description": "A simple slider",
+  "version": "0.1.4",
+  "description": "A simple slider using TranslateX transforms to get GPU-powered smooth animations. ",
   "main": "index.js",
   "keywords": [
     "slider",
