@@ -17,32 +17,115 @@ function ABSlider(root_element, options)
 	
 	var self 			= this;
 	this.root_element 	= root_element;
+	this.ss_elements 	= [];
+	this.ss_position 	= 0;
+	this.skip_slides 	= 0;
 
-	console.log('AB SLIDER');
-	console.log('AB SLIDER');
-	console.log('AB SLIDER');
-	console.log('AB SLIDER');
-	console.log('AB SLIDER');
-	console.log('AB SLIDER');
-	console.log('AB SLIDER');
-	console.log('- - - - - ');
-	console.log('- - - - - ');
-
-	console.log('this.root_element:');
-	console.dir(this.root_element);
+	console.log('- - - - - - -');
+	console.log('- ab-slider -');
+	console.log('- - - - - - -');
 	
 	this.settings = {
-		root_element 		: null,
-		transition_delay 	: null,
-		transition_duration	: null,
+		transitionDelay 	: 5,
+		transitionDuration	: 0.5,
 		onDeploy 			: null,
 		width 				: 100,
 		height 				: 100,
+		autoPlay			: true,
+		size_ratio			: 1.618,
+		button_next_el		: null,
+		button_prev_el		: null,
+		// ease 			: defaultEase,
+		// onChange 			: null,
 		classes				: [],
 		properties 			: {},
 	};
 
 	this.settings = this.extend(this.settings, options);
+
+	console.log('this.settings.width: ' + this.settings.width);
+
+	this.root_element.style.overflow = 'hidden';
+	this.root_element.style.position = 'relative';
+
+	this.position_center 	= 'translate(0px, 0px)';
+	this.position_off_right = 'translate(' + String(this.settings.width) + 'px, 0px)';
+	this.position_off_left  = 'translate(' + String(-this.settings.width) + 'px, 0px)';
+
+	for (var i = 0; i < this.root_element.childNodes.length; i++)
+	{
+		var current_element 					= this.root_element.childNodes[i];
+
+		var new_ss_element 		= {};
+		new_ss_element.index 	= i;
+		new_ss_element.element 	= current_element;
+
+		this.ss_elements.push(new_ss_element);
+
+		current_element.style.position 			= 'absolute';
+		current_element.style.top 				= '0px';
+
+		current_element.style.width  			= this.settings.width;
+		current_element.style.height  			= this.settings.height;
+
+		current_element.style.webkitTransition 	= 'none';
+		current_element.style.mozTransition 	= 'none';
+		current_element.style.msTransition 		= 'none';
+		current_element.style.oTransition 		= 'none';
+
+		current_element.style.transform  		= 'translate(' + String(i * this.settings.width) + 'px, 0px)'
+		
+		var da = current_element;
+		var td = self.settings.transitionDuration;
+	};
+
+	setTimeout(function()
+	{
+		for (var i = 0; i < self.root_element.childNodes.length; i++)
+		{
+			var current_element 		= self.root_element.childNodes[i];
+			
+			var da = current_element;
+			var td = self.settings.transitionDuration;
+
+			da.style.webkitTransition 	= 'all ' + td + 's';
+			da.style.mozTransition 		= 'all ' + td + 's';
+			da.style.msTransition 		= 'all ' + td + 's';
+			da.style.oTransition 		= 'all ' + td + 's';
+		};
+	}, 50);
+
+	if (this.settings.button_next_el !== null) 
+	{
+		var next_tap = new Hammer(this.settings.button_next_el);
+
+		next_tap.on("tap", function(e)
+		{
+			self.invokeSlide('right');
+		});
+	};
+
+	var pan_control = new Hammer(this.root_element);
+
+	pan_control.on("panright", function(e)
+	{
+		self.invokeSlide('left');
+	});
+
+	pan_control.on("panleft", function(e) 
+	{
+		self.invokeSlide('right');
+	});
+
+	if (this.settings.button_prev_el !== null)
+	{
+		var prev_tap = new Hammer(this.settings.button_prev_el);
+
+		prev_tap.on("tap", function(e)
+		{
+			self.invokeSlide('left');
+		});
+	};
 
 	// console.log('this.settings:');
 	// console.dir(this.settings);
@@ -52,20 +135,15 @@ function ABSlider(root_element, options)
 		self.settings.onDeploy(self);
 	};
 
-	// if (this.settings.onTap)
-	// {
-	// 	this.onTap(this.settings.onTap);
-	// };
-
 	$(document).keydown(function(e) 
 	{
 		switch(e.which)
 		{
 			case 37: // left
-				console.log('pressed left');
+				self.invokeSlide('left');
 			break;
 			case 39: // right
-				console.log('presse right');
+				self.invokeSlide('right');
 			break;
 
 			default: return; // exit this handler for other keys
@@ -73,97 +151,130 @@ function ABSlider(root_element, options)
 
 		e.preventDefault(); // prevent the default action (scroll / move caret)
 	});
-}
 
-
-
-//   ## ##               ########   #######  ##     ##     ######   #######  ##    ## ######## ########   #######  ##       
-//   ## ##               ##     ## ##     ## ###   ###    ##    ## ##     ## ###   ##    ##    ##     ## ##     ## ##       
-// #########             ##     ## ##     ## #### ####    ##       ##     ## ####  ##    ##    ##     ## ##     ## ##       
-//   ## ##               ##     ## ##     ## ## ### ##    ##       ##     ## ## ## ##    ##    ########  ##     ## ##       
-// #########             ##     ## ##     ## ##     ##    ##       ##     ## ##  ####    ##    ##   ##   ##     ## ##       
-//   ## ##               ##     ## ##     ## ##     ##    ##    ## ##     ## ##   ###    ##    ##    ##  ##     ## ##       
-//   ## ##               ########   #######  ##     ##     ######   #######  ##    ##    ##    ##     ##  #######  ######## 
-
-
-ABSlider.prototype.addToParent = function addToParent(parent)
-{
-	this.settings.parent = parent;
-	this.settings.parent.add(this.surface_modifier).add(this.surface);
-}
-
-ABSlider.prototype.setContent = function setContent(new_content)
-{
-	this.surface.setContent(new_content);
-}
-
-
-
-//   ## ##                  ###     ######  ######## ####  #######  ##    ##  ######  
-//   ## ##                 ## ##   ##    ##    ##     ##  ##     ## ###   ## ##    ## 
-// #########              ##   ##  ##          ##     ##  ##     ## ####  ## ##       
-//   ## ##               ##     ## ##          ##     ##  ##     ## ## ## ##  ######  
-// #########             ######### ##          ##     ##  ##     ## ##  ####       ## 
-//   ## ##               ##     ## ##    ##    ##     ##  ##     ## ##   ### ##    ## 
-//   ## ##               ##     ##  ######     ##    ####  #######  ##    ##  ######  
-
-
-
-ABSlider.prototype.hide = function hide()
-{
-	if (this.is_visible === true) 
+	if (this.root_element.childNodes.length > 0)
 	{
-		this.is_visible = false;
+		if (this.settings.autoPlay)
+		{
+			// setup looping
+			setInterval(function()
+			{
+				if (self.skip_slides === 0)
+				{
+					self.processNext('left');
+				}
+				else
+				{
+					self.skip_slides--;
+				}
 
-		this.opacity_transitionable.set( 0, { curve : 'linear', duration : 300 } );
+			}, self.settings.transitionDelay * 1000);
+		};
 	};
-}
 
-ABSlider.prototype.show = function show()
-{
-	if (this.is_visible === false) 
+
+	$(window).on('resize', function()
 	{
-		this.is_visible = true;
+		var _width  = self.root_element.clientWidth;
+		var _height = self.root_element.clientWidth / self.settings.size_ratio;
 		
-		this.opacity_transitionable.set( 1, { curve : 'linear', duration : 300 } );
-	};
+		self.settings.width  = _width;
+		self.settings.height = _height;
+
+		for (var i = 0; i < self.root_element.childNodes.length; i++)
+		{
+			current_element.style.width   = self.settings.width;
+			current_element.style.height  = self.settings.height;
+		};
+	});
 }
 
 
-//   ## ##                ######   ######## ######## ######## ######## ########   ######  
-//   ## ##               ##    ##  ##          ##       ##    ##       ##     ## ##    ## 
-// #########             ##        ##          ##       ##    ##       ##     ## ##       
-//   ## ##               ##   #### ######      ##       ##    ######   ########   ######  
-// #########             ##    ##  ##          ##       ##    ##       ##   ##         ## 
-//   ## ##               ##    ##  ##          ##       ##    ##       ##    ##  ##    ## 
-//   ## ##                ######   ########    ##       ##    ######## ##     ##  ######  
-
-
-
-
-Object.defineProperty(ABSlider.prototype, 'x', {
-    // get: function() { return this.transform.translate.state[0] },
-    // set: function(value) { this.transform.setTranslate([value, this.transform.translate.state[1], this.transform.translate.state[2] ]) },
-});
-
-
-
-// // // INTERACTION
-// // // INTERACTION
-// // // INTERACTION
-// // // INTERACTION
-// // // INTERACTION
-// // // INTERACTION
-// // // INTERACTION
-// // // INTERACTION
-// // // INTERACTION
-
-
-ABSlider.prototype.onTap = function onTap( handlerCallback ) 
+ABSlider.prototype.invokeSlide = function invokeSlide(direction)
 {
-	var self 		= this;
-	self.callBack 	= handlerCallback;
-};
+	this.skip_slides = this.skip_slides + 2;
+	if (this.skip_slides > 3) {
+		this.skip_slides = 3;
+	};
+	this.processNext(direction);
+}
+
+
+ABSlider.prototype.processNext = function processNext(direction)
+{
+	var self = this;
+	
+	if (direction === 'left') 
+	{
+		if (this.ss_position < this.ss_elements.length-1) {
+			this.ss_position++;
+		}
+		else
+		{
+			this.ss_position = 0;
+		}
+	}
+	else
+	{
+		if (this.ss_position > 0) {
+			this.ss_position--;
+		}
+		else
+		{
+			this.ss_position = this.ss_elements.length-1;
+		}
+	}
+
+	for (var i = this.ss_elements.length - 1; i >= 0; i--)
+	{
+		var current_ss_element = this.ss_elements[i];
+
+		if (current_ss_element.index === this.ss_position) 
+		{
+			current_ss_element.element.style.webkitTransition 	= 'none';
+			current_ss_element.element.style.mozTransition 		= 'none';
+			current_ss_element.element.style.msTransition 		= 'none';
+			current_ss_element.element.style.oTransition 		= 'none';
+			current_ss_element.element.style.zIndex = 2;
+	
+			if (direction === 'left') 
+			{
+				current_ss_element.element.style.transform = this.position_off_right;
+			}
+
+			if (direction === 'right')
+			{
+				current_ss_element.element.style.transform = this.position_off_left;
+			}
+			
+			var da = current_ss_element.element;
+			var td = self.settings.transitionDuration;
+			
+			setTimeout(function()
+			{
+				da.style.webkitTransition 	= 'all ' + td + 's';
+				da.style.mozTransition 		= 'all ' + td + 's';
+				da.style.msTransition 		= 'all ' + td + 's';
+				da.style.oTransition 		= 'all ' + td + 's';
+				da.style.transform 			= self.position_center;
+			}, 10);
+		}
+
+		if (current_ss_element.element.style.transform === this.position_center)
+		{
+			current_ss_element.element.style.zIndex = 1;
+
+			if (direction === 'left') 
+			{
+				current_ss_element.element.style.transform = this.position_off_left;
+			}
+			if (direction === 'right')
+			{
+				current_ss_element.element.style.transform = this.position_off_right;
+			}	
+		}		
+	};
+}
 
 
 
@@ -174,7 +285,6 @@ ABSlider.prototype.onTap = function onTap( handlerCallback )
 // #########                   ##    ##          ## 
 //   ## ##               ##    ##    ##    ##    ## 
 //   ## ##                ######     ##     ######  
-
 
 
 
