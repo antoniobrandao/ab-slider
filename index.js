@@ -1,12 +1,6 @@
 'use strict';
 
-//   ## ##               #### ##    ## #### ######## 
-//   ## ##                ##  ###   ##  ##     ##    
-// #########              ##  ####  ##  ##     ##    
-//   ## ##                ##  ## ## ##  ##     ##    
-// #########              ##  ##  ####  ##     ##    
-//   ## ##                ##  ##   ###  ##     ##    
-//   ## ##               #### ##    ## ####    ##    
+var hammerjs = require('hammerjs');
 
 function ABSlider(root_element, options)
 {
@@ -97,7 +91,7 @@ function ABSlider(root_element, options)
 
 	if (this.settings.button_next_el !== null) 
 	{
-		var next_tap = new Hammer(this.settings.button_next_el);
+		var next_tap = new hammerjs(this.settings.button_next_el);
 
 		next_tap.on("tap", function(e)
 		{
@@ -105,7 +99,7 @@ function ABSlider(root_element, options)
 		});
 	};
 
-	var pan_control = new Hammer(this.root_element);
+	var pan_control = new hammerjs(this.root_element);
 
 	pan_control.on("panright", function(e)
 	{
@@ -119,7 +113,7 @@ function ABSlider(root_element, options)
 
 	if (this.settings.button_prev_el !== null)
 	{
-		var prev_tap = new Hammer(this.settings.button_prev_el);
+		var prev_tap = new hammerjs(this.settings.button_prev_el);
 
 		prev_tap.on("tap", function(e)
 		{
@@ -135,7 +129,7 @@ function ABSlider(root_element, options)
 		self.settings.onDeploy(self);
 	};
 
-	$(document).keydown(function(e) 
+	window.addEventListener('keydown', function(e) 
 	{
 		switch(e.which)
 		{
@@ -173,7 +167,7 @@ function ABSlider(root_element, options)
 	};
 
 
-	$(window).on('resize', function()
+	window.addEventListener('resize', function()
 	{
 		var _width  = self.root_element.clientWidth;
 		var _height = self.root_element.clientWidth / self.settings.size_ratio;

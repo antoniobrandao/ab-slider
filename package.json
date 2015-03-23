@@ -1,6 +1,6 @@
 {
   "name": "ab-slider",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A simple slider",
   "main": "index.js",
   "keywords": [
@@ -16,5 +16,8 @@
   },
   "bugs": {
     "url": "https://github.com/antoniobrandao/ab-slider/issues"
+  },
+  "devDependencies": {
+    "hammerjs": "^2.0.4"
   }
 }
